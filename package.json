@@ -5,6 +5,7 @@
   "author": "Woody Rousseau <woodyr@sipios.com>",
   "private": false,
   "license": "MIT",
+  "main": "dist/index.js",
   "keywords": [
     "nest",
     "nestjs",
