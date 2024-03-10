@@ -1,6 +1,6 @@
 {
   "name": "nestjs-generative-ai",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A selection of useful one-liner decorators, pipes and services to boost your NestJS APIs with Generative AI sweetness",
   "author": "Woody Rousseau <woodyr@sipios.com>",
   "private": false,
