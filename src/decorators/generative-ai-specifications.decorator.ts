@@ -1,20 +1,14 @@
 import { ValidationArguments, registerDecorator } from 'class-validator';
-import { Inject } from '@nestjs/common';
-import { AICheckParams } from '../interfaces/generative-ai.interface';
-import { AIFeedbackEngine } from '../generative-ai.service';
+import { AISpecificationsParams } from '../interfaces/generative-ai.interface';
+import { AIService } from '../generative-ai.service';
 import { FieldsSpecificationsStore, ValidationMessageStore } from '../utils';
 
-export const AICheck = (
+export const AISpecifications = (
   specifications: string[],
-  checkParams?: AICheckParams,
+  specificationsParams?: AISpecificationsParams,
 ) => {
-  const injectFeedbackEngine = Inject(AIFeedbackEngine);
-
   return (target: any, propertyKey: string) => {
-    injectFeedbackEngine(target, 'feedbackEngine');
-    const feedbackEngine: AIFeedbackEngine = target.feedbackEngine;
-
-    if (checkParams === undefined || !checkParams.validate) {
+    if (specificationsParams === undefined || !specificationsParams.validate) {
       FieldsSpecificationsStore.setClassFieldsSpecifications(
         target.constructor.name,
         {
@@ -22,17 +16,16 @@ export const AICheck = (
           specifications,
         },
       );
-      return;
     }
 
     const validate = async (value, args) => {
+      const aiService = AIService.getInstance();
       const [guidelines] = args.constraints;
 
-      const feedback =
-        await feedbackEngine.generateFeedbackOnInputWithGuidelines(
-          value,
-          guidelines,
-        );
+      const feedback = await aiService.generateFeedbackOnInputWithGuidelines(
+        value,
+        guidelines,
+      );
 
       const isValid = feedback.includes("It's good");
 
@@ -58,7 +51,7 @@ export const AICheck = (
     };
 
     registerDecorator({
-      name: 'aICheck',
+      name: 'aISpecifications',
       target: target.constructor,
       propertyName: propertyKey,
       constraints: [specifications],

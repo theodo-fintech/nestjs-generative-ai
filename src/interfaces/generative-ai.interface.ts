@@ -8,7 +8,7 @@ export class SummaryEnriched<T> {
   public summary!: string;
 }
 
-export interface AICheckParams {
+export interface AISpecificationsParams {
   validate: boolean;
 }
 
@@ -17,7 +17,7 @@ export interface FieldSpecifications {
   specifications: string[];
 }
 
-export class AIFile {
+export class SummaryEnrichedFile {
   file!: Express.Multer.File;
   summary!: string;
 }

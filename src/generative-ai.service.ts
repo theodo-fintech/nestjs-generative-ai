@@ -1,22 +1,31 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { ChatOpenAI } from '@langchain/openai';
 import { GenerativeAIModuleOptions } from './interfaces';
 import { GENERATIVE_AI_MODULE_OPTIONS } from './constants';
+import { loadSummarizationChain } from 'langchain/chains';
+import { Document } from '@langchain/core/documents';
 
 @Injectable()
-export class AIFeedbackEngine implements OnModuleInit {
+export class AIService {
   private chatModel!: ChatOpenAI;
+  private static instance: AIService;
 
   constructor(
     @Inject(GENERATIVE_AI_MODULE_OPTIONS)
     protected readonly options: GenerativeAIModuleOptions,
-  ) {}
-
-  async onModuleInit() {
+  ) {
     this.chatModel = new ChatOpenAI({
       openAIApiKey: this.options.modelApiKey,
     });
+    AIService.instance = this;
+  }
+
+  public static getInstance(): AIService {
+    if (!AIService.instance) {
+      throw new Error('AIService instance has not been initialized');
+    }
+    return AIService.instance;
   }
 
   async generateFeedbackOnInputWithGuidelines(
@@ -45,5 +54,15 @@ export class AIFeedbackEngine implements OnModuleInit {
     const result = await chain.invoke(prompt);
 
     return result;
+  }
+
+  async summarizeDocuments(docs: Document[]): Promise<string> {
+    const summarizeChain = loadSummarizationChain(this.chatModel, {
+      type: 'stuff',
+    });
+
+    const result = await summarizeChain.invoke({ input_documents: docs });
+
+    return result.text;
   }
 }

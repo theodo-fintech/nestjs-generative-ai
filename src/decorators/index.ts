@@ -1,1 +1,2 @@
-export * from './generative-ai-check.decorator';
+export * from './generative-ai-specifications.decorator';
+export * from './generative-ai-feedback.decorator';

@@ -1,7 +1,5 @@
 import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
-import { APP_PIPE } from '@nestjs/core';
-import { AIFeedbackEngine } from './generative-ai.service';
-import { AICheckPipe, AISummarizeDocumentPipe } from './pipes';
+import { AIService } from './generative-ai.service';
 import {
   GenerativeAIModuleAsyncOptions,
   GenerativeAIModuleOptions,
@@ -19,17 +17,9 @@ export class GenerativeAIModule {
           provide: GENERATIVE_AI_MODULE_OPTIONS,
           useValue: options,
         },
-        AIFeedbackEngine,
-        {
-          provide: APP_PIPE,
-          useClass: AICheckPipe,
-        },
-        {
-          provide: APP_PIPE,
-          useClass: AISummarizeDocumentPipe,
-        },
+        AIService,
       ],
-      exports: [AIFeedbackEngine],
+      exports: [AIService],
     };
   }
 
@@ -37,19 +27,8 @@ export class GenerativeAIModule {
     return {
       module: GenerativeAIModule,
       imports: options.imports || [],
-      providers: [
-        this.createAsyncOptionsProvider(options),
-        AIFeedbackEngine,
-        {
-          provide: APP_PIPE,
-          useClass: AICheckPipe,
-        },
-        {
-          provide: APP_PIPE,
-          useClass: AISummarizeDocumentPipe,
-        },
-      ],
-      exports: [AIFeedbackEngine],
+      providers: [this.createAsyncOptionsProvider(options), AIService],
+      exports: [AIService],
     };
   }
 

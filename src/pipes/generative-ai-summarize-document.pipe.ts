@@ -3,15 +3,16 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import { promises as fs } from 'fs';
 import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
-import { ChatOpenAI } from '@langchain/openai';
-import { loadSummarizationChain } from 'langchain/chains';
+import { SummaryEnrichedFile } from '../interfaces';
+import { AIService } from '../generative-ai.service';
 
 @Injectable()
 export class AISummarizeDocumentPipe implements PipeTransform {
+  constructor(private readonly aiService: AIService) {}
   async transform(value: Express.Multer.File, metadata: ArgumentMetadata) {
     if (
       metadata.metatype === undefined ||
-      metadata.metatype.name !== 'AIFile'
+      metadata.metatype.name !== SummaryEnrichedFile.name
     ) {
       return value;
     }
@@ -25,17 +26,11 @@ export class AISummarizeDocumentPipe implements PipeTransform {
 
     try {
       const docs = await loader.loadAndSplit();
-      const llm = new ChatOpenAI();
-
-      const summarizeChain = loadSummarizationChain(llm, {
-        type: 'stuff',
-      });
-
-      const summary = await summarizeChain.invoke({ input_documents: docs });
+      const summary = await this.aiService.summarizeDocuments(docs);
 
       const result = {
         file: value,
-        summary: summary.text,
+        summary,
       };
 
       return result;

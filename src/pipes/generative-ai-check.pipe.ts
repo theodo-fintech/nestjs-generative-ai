@@ -1,41 +1,54 @@
-import { Injectable, PipeTransform, Type } from '@nestjs/common';
+import { Inject, PipeTransform, Type, mixin } from '@nestjs/common';
 import { FeedbackEnriched } from '../interfaces/generative-ai.interface';
-import { AIFeedbackEngine } from '../generative-ai.service';
-import { FieldsSpecificationsStore } from '../utils';
+import { AIService } from '../generative-ai.service';
+import { FieldsSpecificationsStore, memoize } from '../utils';
 
-@Injectable()
-export class AICheckPipe<T>
-  implements PipeTransform<T, Promise<FeedbackEnriched<T>>>
-{
-  constructor(
-    private expectedType: Type<any>,
-    private readonly feedbackEngine: AIFeedbackEngine,
-  ) {}
-  async transform(value: T): Promise<FeedbackEnriched<T>> {
-    const fieldsSpecifications =
-      FieldsSpecificationsStore.getClassFieldsSpecifications(
-        this.expectedType.name,
-      );
+export type IAICheckPipe = {
+  transform<T>(value: T): Promise<FeedbackEnriched<T>>;
+};
 
-    if (fieldsSpecifications !== undefined) {
-      const input = value[fieldsSpecifications.fieldName];
-      const specifications = fieldsSpecifications.specifications;
+export const AICheckPipe: (expectedType: Type<any>) => Type<IAICheckPipe> =
+  memoize(createAICheckPipe);
 
-      const feedback =
-        await this.feedbackEngine.generateFeedbackOnInputWithGuidelines(
-          input,
-          specifications,
+function createAICheckPipe(expectedType: Type<any>): Type<IAICheckPipe> {
+  class MixinAICheckPipe<T>
+    implements PipeTransform<T, Promise<FeedbackEnriched<T>>>
+  {
+    protected aiService: AIService;
+    constructor(@Inject(AIService) feedbackEngine: AIService) {
+      this.aiService = feedbackEngine;
+    }
+
+    async transform(value: T): Promise<FeedbackEnriched<T>> {
+      const fieldsSpecifications =
+        FieldsSpecificationsStore.getClassFieldsSpecifications(
+          expectedType.name,
         );
+
+      if (fieldsSpecifications !== undefined) {
+        const input = value[fieldsSpecifications.fieldName];
+        const specifications = fieldsSpecifications.specifications;
+
+        const feedback =
+          await this.aiService.generateFeedbackOnInputWithGuidelines(
+            input,
+            specifications,
+          );
+
+        return {
+          data: value,
+          feedback,
+        };
+      }
 
       return {
         data: value,
-        feedback,
+        feedback: undefined,
       };
     }
-
-    return {
-      data: value,
-      feedback: undefined,
-    };
   }
+
+  const pipe = mixin(MixinAICheckPipe);
+
+  return pipe as Type<IAICheckPipe>;
 }

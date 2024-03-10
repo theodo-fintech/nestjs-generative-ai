@@ -22,6 +22,7 @@
   "scripts": {
     "prepare": "husky install",
     "build": "tsc",
+    "build:watch": "tsc -w",
     "release": "semantic-release",
     "lint": "eslint \"src/**/!(*.d).ts\" --fix",
     "format": "prettier \"**/*.ts\" --ignore-path ./.prettierignore --write"
@@ -38,6 +39,7 @@
     "@nestjs/testing": "10.3.0",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^9.2.6",
+    "@semantic-release/changelog": "^6.0.3",
     "@tsconfig/recommended": "^1.0.2",
     "@types/jest": "28.1.6",
     "@types/multer": "^1.4.11",
@@ -75,6 +77,12 @@
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "CHANGELOG.md"
+        }
+      ],
       "@semantic-release/npm",
       "@semantic-release/git"
     ]
