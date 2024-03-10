@@ -3,8 +3,6 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![License][license-shield]][license-url]
-![Vulnerabilities][vulnerabilities-shield]
-[![Workflow][workflow-shield]][workflow-url]
 
 <p align="center">
   <a href="https://nestjs.com/">
@@ -67,17 +65,13 @@
 
 ... and more to come!
 
-### Test coverage
-
-| Statements                                                                                                | Branches                                                                                              | Functions                                                                                               | Lines                                                                                           |
-| --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| ![Statements](https://img.shields.io/badge/statements-100%25-brightgreen.svg?style=flat-square&logo=jest) | ![Branches](https://img.shields.io/badge/branches-100%25-brightgreen.svg?style=flat-square&logo=jest) | ![Functions](https://img.shields.io/badge/functions-100%25-brightgreen.svg?style=flat-square&logo=jest) | ![Lines](https://img.shields.io/badge/lines-100%25-brightgreen.svg?style=flat-square&logo=jest) |
-
 ## Getting Started
 
 ### Prerequisites
 
-This lib was tested only on and thus require **Node.js >=21.6.1**, **NestJS ^10.0.0**
+This lib was tested only on and thus require **Node.js >=21.6.1**, **NestJS ^10.3.3**
+
+You will also need both the library and `class-transformer` and `@nestjs/config` to make the magic happen
 
 ### Installation
 
@@ -90,16 +84,58 @@ yarn add nestjs-generative-ai
 pnpm add nestjs-generative-ai
 ```
 
+### Configuration
+
+Configure the library in the module you want to use it in. If you want to use it globally, configure it in the main app module.
+
+The library currently only works with OpenAI so you will need to set the `OPENAI_API_KEY` which you will find on [OpenAI's website](https://platform.openai.com/api-keys) and set in your environment variables.
+
+```ts
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { GenerativeAIModule } from 'nestjs-generative-ai';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot(),
+    GenerativeAIModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        modelApiKey: configService.get('OPENAI_API_KEY') as string,
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
+If you also want to enable validation globally, you should configure the `ValidationPipe` in your `main.ts` file
+
+```ts
+import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  await app.listen(3000);
+}
+bootstrap();
+```
+
 ## Usage
 
-- [Data processing](/docs/latest/data.md)
-  - [Validation](/docs/latest/data.md#validation)
-  - [Suggestion](/docs/latest/data.md#suggestion)
-- [Document processing](/docs/latest/document.md)
-  - [Summary](/docs/latest/document.md#summary)
-  - [Extraction](/docs/latest/document.md#extraction)
-  - [Tagging](/docs/latest/document.md#tagging)
-- [Examples](/docs/latest/examples.md)
+- [Data processing](/docs/data.md)
+  - [Validation](/docs/data.md#validation)
+  - [Feedback](/docs/data.md#feedback)
+- [Document processing](/docs/documents.md)
+  - [Summary](/docs/document.mds#summary)
 
 ## FAQs
 
@@ -107,10 +143,10 @@ No FAQ at the moment
 
 ## Roadmap
 
-- [x] Add first 5 decorators and services
+- [x] Add first 3 decorators and services
 - [ ] Allow customizing the chosen LLM
 - [ ] Allow customizing the prompt used for a specific decorator instance or globally
-- [ ] Add new awesome decorators?
+- [ ] Add new awesome decorators and services?
 
 ## Contributing
 
@@ -127,16 +163,13 @@ Distributed under the MIT License. See [LICENSE](/.LICENSE) for more information
 - [Nestjs-redis from which the README.md model was taken](https://github.com/sipios/nestjs-generative-ai)
 - [Langchainjs which is heavily used](https://github.com/langchain-ai/langchainjs)
 
-[npm-shield]: https://img.shields.io/npm/v/sipios/nestjs-generative-ai/latest?style=for-the-badge
-[npm-url]: https://www.npmjs.com/package/sipios/nestjs-generative-ai
-[downloads-shield]: https://img.shields.io/npm/dm/sipios/nestjs-generative-ai?style=for-the-badge
-[downloads-url]: https://www.npmjs.com/package/sipios/nestjs-generative-ai
+[npm-shield]: https://img.shields.io/npm/v/nestjs-generative-ai/latest?style=for-the-badge
+[npm-url]: https://www.npmjs.com/package/nestjs-generative-ai
+[downloads-shield]: https://img.shields.io/npm/dm/nestjs-generative-ai?style=for-the-badge
+[downloads-url]: https://www.npmjs.com/package/nestjs-generative-ai
 [stars-shield]: https://img.shields.io/github/stars/sipios/nestjs-generative-ai?style=for-the-badge
 [stars-url]: https://github.com/sipios/nestjs-generative-ai/stargazers
 [issues-shield]: https://img.shields.io/github/issues/sipios/nestjs-generative-ai?style=for-the-badge
 [issues-url]: https://github.com/sipios/nestjs-generative-ai/issues
-[license-shield]: https://img.shields.io/npm/l/sipios/nestjs-generative-ai?style=for-the-badge
+[license-shield]: https://img.shields.io/npm/l/nestjs-generative-ai?style=for-the-badge
 [license-url]: https://github.com/sipios/nestjs-generative-ai/blob/main/LICENSE
-[vulnerabilities-shield]: https://img.shields.io/snyk/vulnerabilities/npm/sipios/nestjs-generative-ai?style=for-the-badge
-[workflow-shield]: https://img.shields.io/github/actions/workflow/status/sipios/nestjs-generative-ai/testing.yaml?label=TESTING&style=for-the-badge
-[workflow-url]: https://github.com/sipios/nestjs-generative-ai/actions/workflows/testing.yaml
