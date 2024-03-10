@@ -57,11 +57,9 @@
 
 ### Features
 
-- **Payload Validation**: Reject payload data, for instance for freetext form fields, which don't match specifications with `@AIValidate`
+- **Payload Validation**: Reject payload data, for instance for freetext form fields, which don't match specifications with `@AISpecifications`
 - **Payload Suggestion**: Generate feedback for unmet specifications on payload data, through clarifying questions for the user, with `@AIFeedback`
-- **Document Summary**: Get a 5 sentences summary along any uploaded document with `@AIDocumentSummarize`
-- **Document Extraction**: Extract relevant data from any uploaded document with `@AIDocumentExtract`
-- **Document Tagging**: Retrieve relevant tags from any uploaded document with `@AIDocumentTag`
+- **Document Summary**: Get a 5 sentences summary along any uploaded document with `AISummarizeDocumentPipe`
 
 ... and more to come!
 
