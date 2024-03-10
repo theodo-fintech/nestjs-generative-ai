@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/sipios/nestjs-generative-ai/compare/v1.0.3...v1.0.4) (2024-03-10)
+
+
+### Bug Fixes
+
+* **pencil:** fix documentation ([bbe63d2](https://github.com/sipios/nestjs-generative-ai/commit/bbe63d2955f1234ca3e16b962c7ab929f547ec7d))
+
 ## [1.0.3](https://github.com/sipios/nestjs-generative-ai/compare/v1.0.2...v1.0.3) (2024-03-10)
 
 
