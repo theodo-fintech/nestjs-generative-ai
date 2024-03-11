@@ -150,7 +150,7 @@ No FAQ at the moment
 
 We are just getting started on this project and would **highly appreciate** contributions
 
-- [Examples](/.github/CONTRIBUTIING.md)
+- [Examples](/.github/CONTRIBUTING.md)
 
 ## License
 
@@ -158,7 +158,7 @@ Distributed under the MIT License. See [LICENSE](/.LICENSE) for more information
 
 ## Acknowledgments
 
-- [Nestjs-redis from which the README.md model was taken](https://github.com/sipios/nestjs-generative-ai)
+- [Nestjs-redis from which the README.md model was taken](https://github.com/liaoliaots/nestjs-redis)
 - [Langchainjs which is heavily used](https://github.com/langchain-ai/langchainjs)
 
 [npm-shield]: https://img.shields.io/npm/v/nestjs-generative-ai/latest?style=for-the-badge
